@@ -15,13 +15,15 @@
 #   focal     = character string file name of focal species inside in_dir folder including
 #               file extension 
 #               e.g. "Gonimbrasia_belina.tif"
-#   direction = a vector of 1s and -1s that denote the direction of interaction of interacting
-#               species on focal species in alphabetical order 
+#   direction = vector of 1s (positive interaction) and -1s (negative interactions) that 
+#               denote the direction of interaction of interacting species on focal species 
+#               in alphabetical order 
 #               e.g. c(1, -1, 1)
 #   method    = character string "or" (default) or "and"
 #               specifies state table filling method OR vs AND (box 2 of Staniczenko et al)
 # 
-# SDM rasters will be loaded and used alphabetically
+# SDM rasters are loaded and used alphabetically so direction vector must be in the same 
+# order
 
 # Required packages ----
 require(gRain)
