@@ -24,6 +24,13 @@
 # 
 # SDM rasters are loaded and used alphabetically so direction vector must be in the same 
 # order
+# 
+# Example ----
+# bnSDM(in_dir = "in_folder/", 
+#       out_dir = "out_folder/", 
+#       focal = "focalspecies.tif", 
+#       direction = c(1,1,-1,-1), 
+#       method = "and")
 
 # Required packages ----
 require(raster)
