@@ -9,5 +9,5 @@ A function at applies a bayesian network to SDMs. Based on Staniczenko et al. (2
 
 SDM rasters are loaded and used alphabetically, so the `direction` vector must be in the same order
 
-### Source
+#### Source
 `devtools::source_url("https://github.com/psijure/bayesian_network_sdm/blob/main/bnSDM_solve_func.R?raw=TRUE")`
