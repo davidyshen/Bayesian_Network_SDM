@@ -69,12 +69,13 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   # Output focal species raster
   out <- focalSp
   outvals <- c()
+  n <- ncell(stack)
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
-  for (i in 1:ncell(stack))
+  for (i in 1:n)
   {
-    print(i)
+    cat(i, "of", n)
     if(is.na(focalValues[i]) == T) {outvals[i] <- NA
     # Run if focal species presence != 0
     } else if(focalValues[i] != 0)
@@ -150,7 +151,7 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
     # Skip above and focal species presence = 0 if previously 0
     } else if(focalValues[i] == 0) {outvals[i] <- 0}
     
-    setTxtProgressBar(pb, i)
+    # setTxtProgressBar(pb, i)
   }
   cat("\n Done \n")
   # Write posterior values to output raster
