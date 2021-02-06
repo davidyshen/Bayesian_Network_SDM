@@ -74,8 +74,9 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   # Working cell by cell of raster
   for (i in 1:ncell(stack))
   {
+    if(is.na(focalValues[i]) == T) {outvals[i] <- NA
     # Run if focal species presence != 0
-    if(focalValues[i] != 0)
+    } else if(focalValues[i] != 0)
     {
       # Make table for each interacting species
       for (j in 1:length(names))
@@ -103,20 +104,17 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
           if(f$focal[m] == 0)
           {
             f$p[m] <- focalValues[i]
-          }
           # If net > 0, increased probability
-          else if(f$focal[m] > 0)
+          } else if(f$focal[m] > 0)
           {
             f$p[m] <- focalValues[i] + min(focalValues[i], 1-focalValues[i])
-          }
           # If net < 0, decreased probability
-          else if(f$focal[m] < 0)
+          } else if(f$focal[m] < 0)
           {
             f$p[m] <- focalValues[i] - min(focalValues[i], 1-focalValues[i])
           }
         }
-      }
-      if(method == "and")
+      } else if(method == "and")
       {
         for(m in 1:nrow(f))
         {
@@ -124,14 +122,12 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
           if(f$focal[m] == table(direction)[2])
           {
             f$p[m] <- focalValues[i] + min(focalValues[i], 1-focalValues[i])
-          }
           # If all negative interactors are present
-          else if(f$focal[m] == table(direction)[1]*-1)
+          } else if(f$focal[m] == table(direction)[1]*-1)
           {
             f$p[m] <- focalValues[i] - min(focalValues[i], 1-focalValues[i])
-          }
           # Else no chance
-          else {f$p[m] <- focalValues[i]}
+          } else {f$p[m] <- focalValues[i]}
         }
       }
       f$a <- 1-f$p
@@ -150,9 +146,8 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
       BN <- grain(plist)
       posteriors <- querygrain(BN)
       outvals[i] <-  eval(parse(text = paste0("posteriors$", focalname)))[1]
-    }
     # Skip above and focal species presence = 0 if previously 0
-    if(focalValues[i] == 0) {outvals[i] <- 0}
+    } else if(focalValues[i] == 0) {outvals[i] <- 0}
     
     setTxtProgressBar(pb, i)
   }
