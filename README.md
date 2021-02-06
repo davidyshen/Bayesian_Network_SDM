@@ -17,4 +17,9 @@ SDM rasters are loaded and used alphabetically, so the `direction` vector must b
 #### Source
 `devtools::source_url("https://github.com/psijure/bayesian_network_sdm/blob/main/bnSDM_solve_func.R?raw=TRUE")`
 or download `bnSDM_solve_func.R`
-###
+
+### Function dependencies
+* raster
+* gRain
+* dplyr
+Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor
