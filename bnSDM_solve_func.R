@@ -45,7 +45,7 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   if(!dir.exists(out_dir)){
     dir.create(out_dir, recursive = T)
   }
-  pb <- txtProgressBar(min = 1, max = ncell(stack), style = 3)
+  # pb <- txtProgressBar(min = 1, max = ncell(stack), style = 3)
   levels = c("pres", "abs")
   files <- list.files(in_dir)
   interactors <- files[-which(files == focal)]
