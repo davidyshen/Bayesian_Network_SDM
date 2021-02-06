@@ -75,7 +75,7 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   # Working cell by cell of raster
   for (i in 1:n)
   {
-    cat(i, "of", n)
+    cat(i, "of", n, "\n")
     if(is.na(focalValues[i]) == T) {outvals[i] <- NA
     # Run if focal species presence != 0
     } else if(focalValues[i] != 0)
