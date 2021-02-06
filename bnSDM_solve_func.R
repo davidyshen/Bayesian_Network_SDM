@@ -26,11 +26,11 @@
 # order
 
 # Required packages ----
+require(raster)
+require(dplyr)
 require(gRain)
 # Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be 
 # obtained through Bioconductor
-require(raster)
-require(dplyr)
 
 # Function ----
 bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
