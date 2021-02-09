@@ -14,13 +14,13 @@ Outputs a tif in the output directory named *focal.species*_bnSDM.tif
 
 SDM rasters are loaded and used alphabetically, so the `direction` vector must be in the same order
 
-### Sourcing
+### Calling
 `devtools::source_url("https://github.com/psijure/bayesian_network_sdm/blob/main/bnSDM_solve_func.R?raw=TRUE")`
 or download `bnSDM_solve_func.R`
 
 ### Function dependencies
 * raster
-* gRain
+* ~~gRain~~
 * dplyr
 
-Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor
+~~Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor~~ No longer requires gRain package
