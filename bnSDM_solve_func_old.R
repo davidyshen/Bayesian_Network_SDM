@@ -1,6 +1,6 @@
 # David Shen
 # 06/02/2021
-# bnSDM_solve_func.R
+# bnSDM_solve_func.R v1
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
