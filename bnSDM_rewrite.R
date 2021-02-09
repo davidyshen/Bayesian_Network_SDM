@@ -55,7 +55,6 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
-  #### TO BE REWRITTEN ####
   outvals <- apply(values, 1, interP, direction, method)
   
   cat("\n Done \n")
