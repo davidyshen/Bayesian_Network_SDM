@@ -24,3 +24,6 @@ or download `bnSDM_solve_func.R`
 * dplyr
 
 ~~Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor~~ No longer requires gRain package
+
+
+Future plans: add multithreading to speed up execution on big rasters
