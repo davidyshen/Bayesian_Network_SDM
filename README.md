@@ -15,7 +15,7 @@ Outputs a tif in the output directory named *focal.species*_bnSDM.tif
 SDM rasters are loaded and used alphabetically, so the `direction` vector must be in the same order
 
 ### Calling
-`devtools::source_url("https://github.com/davidyshen/bayesian_network_sdm/main/bnSDM_rewrite.R?raw=TRUE")`  
+`devtools::source_url("https://github.com/davidyshen/bayesian_network_sdm/blob/main/bnSDM_rewrite.R?raw=TRUE")`  
 or download `bnSDM_rewrite.R`
 
 ### Function dependencies
