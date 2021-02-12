@@ -1,7 +1,7 @@
 # Bayesian Network SDM function
 A function at applies a bayesian network to SDMs. Based on Staniczenko et al. (2017), [doi:10.1111/ele.12770](https://doi.org/10.1111/ele.12770)
 ### Calling function
-`bnSDM(in_dir, out_dir, focal, direction, method)`
+`bnSDM(in_dir, out_dir, focal, direction, method, ncores)`
 
 Outputs a tif in the output directory named *focal.species*_bnSDM.tif
 
