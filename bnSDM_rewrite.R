@@ -1,6 +1,6 @@
 # David Shen
-# 09/02/2021
-# bnSDM_rewrite.R v2
+# 12/02/2021
+# bnSDM_rewrite.R v3
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
@@ -26,9 +26,12 @@
 # Required packages ----
 require(raster)
 require(dplyr)
+require(parallel)
+require(future)
+require(future.apply)
 
 # Function ----
-bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
+bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or", ncores = "auto")
 {
   if(!dir.exists(out_dir)){
     dir.create(out_dir, recursive = T)
@@ -36,6 +39,15 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   levels = c("pres", "abs")
   files <- list.files(in_dir)
   interactors <- files[-which(files == focal)]
+  
+  # Multicore processing
+  if(ncores == "auto"){
+    cores <- parallel::detectCores()
+  } else if(is.numeric(ncores)) {
+    if(ncores > parallel::detectCores()){stop("More cores specified than available: ", parallel::detectCores(), " usable")}
+    cores <- ncores
+  }
+  
   
   # A stack of rasters of the non-focal species
   stack <- raster::stack(paste0(in_dir, interactors))
@@ -55,7 +67,10 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
-  outvals <- apply(values, 1, interP, direction, method)
+  cl <- parallel::makeCluster(cores)
+  parallel::clusterExport(cl, c("values", "direction", "method", "stateTable", "focalP", "orFunc", "andFunc"))
+  outvals <- parallel::parRapply(cl, values, interP, direction, method)
+  parallel::stopCluster(cl)
   
   cat("\n Done \n")
   # Write posterior values to output raster
@@ -64,7 +79,8 @@ bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or")
   suppressWarnings(raster::writeRaster(out, paste0(out_dir, names(out), "_bnSDM.tif"), format = "GTiff", overwrite = T))
 }
 
-# Function that fills state table for interacting species ----
+# Dependent Functions ----
+## Function that fills state table for interacting species ----
 interP <- function(inter, direction, method) {
   t0 <- stateTable(direction)
   t0 <- t(t(t0)*inter[-length(inter)])
@@ -76,11 +92,7 @@ interP <- function(inter, direction, method) {
   return(sum(apply(t, 1, prod)))
 }
 
-testfunc <- function(inter) {
-  
-}
-
-# Function that solves state table for focal species ----
+## Function that solves state table for focal species ----
 focalP <- function(fp, direction, method) {
   m <- stateTable(direction)
   m <- t(t(m)*direction)
@@ -92,7 +104,7 @@ focalP <- function(fp, direction, method) {
   }
 }
 
-# Function that makes state tables from direction vector ----
+## Function that makes state tables from direction vector ----
 stateTable <- function(direction) {
   m1 <- matrix(nrow = 2^length(direction), ncol = length(direction))
   for (k in 1:nrow(m1)) {m1[k,] <- as.numeric(intToBits(k-1))[1:length(direction)]}
@@ -100,7 +112,7 @@ stateTable <- function(direction) {
   return(m1)
 }
 
-# Function that evaluates state using OR ----
+## Function that evaluates state using OR ----
 orFunc <- function(x, fp) {
   if(x == 0) {
     return(fp)
@@ -111,7 +123,7 @@ orFunc <- function(x, fp) {
   }
 }
 
-# Function that evaluates state using AND ----
+## Function that evaluates state using AND ----
 andFunc <- function(x, fp, direction) {
   dt <- table(direction)
   if (x == dt[2]) {
