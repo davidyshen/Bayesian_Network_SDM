@@ -27,3 +27,4 @@ or download `bnSDM_rewrite.R`
 
 ~~Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor~~ No longer requires gRain package
 
+Future steps: Reinclude gRain package to draw interation network plot
