@@ -1,6 +1,6 @@
 # David Shen
 # 26/02/2021
-# bnSDM_rewrite.R v3
+# bnSDM_rewrite.R v4
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
