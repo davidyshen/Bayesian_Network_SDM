@@ -1,5 +1,5 @@
 # David Shen
-# 12/02/2021
+# 26/02/2021
 # bnSDM_rewrite.R v3
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
@@ -23,15 +23,13 @@
 # 
 # SDM rasters will be loaded and used alphabetically
 
-# Required packages ----
-require(raster)
-require(dplyr)
-require(parallel)
-require(future)
-require(future.apply)
-
 # Function ----
-bnSDM <- function(in_dir, out_dir = "BN_out/", focal, direction, method = "or", ncores = "auto")
+bnSDM <- function(in_dir, 
+                  out_dir = "BN_out/", 
+                  focal, 
+                  direction, 
+                  method = "or", 
+                  ncores = "auto")
 {
   if(!dir.exists(out_dir)){
     dir.create(out_dir, recursive = T)
