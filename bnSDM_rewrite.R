@@ -35,7 +35,6 @@ bnSDM <- function(in_dir,
     dir.create(out_dir, recursive = T)
   }
   files <- list.files(in_dir)
-  cat(files, "\n")
   interactors <- files[-which(files == focal)]
   
   # Multicore processing
@@ -51,6 +50,9 @@ bnSDM <- function(in_dir,
   stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
   cat("Extracting values... \n")
   values <- raster::values(stack)
+  
+  print(head(values))
+  
   cat("Done \n")
   
   out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
