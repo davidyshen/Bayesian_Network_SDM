@@ -22,7 +22,7 @@ or download `bnSDM_rewrite.R`
 ### Function dependencies
 * raster
 * ~~gRain~~
-* dplyr
+* ~~dplyr~~
 * parallel
 
 ~~Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor~~ No longer requires gRain package
