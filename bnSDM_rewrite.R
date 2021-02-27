@@ -49,10 +49,7 @@ bnSDM <- function(in_dir,
   # A stack of rasters of species with focal species last
   stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
   cat("Extracting values... \n")
-  values <- raster::values(stack)
-  
-  print(head(values))
-  
+  values <<- raster::values(stack)
   cat("Done \n")
   
   out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
