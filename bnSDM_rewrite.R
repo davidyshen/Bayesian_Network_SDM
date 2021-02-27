@@ -35,6 +35,7 @@ bnSDM <- function(in_dir,
     dir.create(out_dir, recursive = T)
   }
   files <- list.files(in_dir)
+  cat(files, "\n")
   interactors <- files[-which(files == focal)]
   
   # Multicore processing
