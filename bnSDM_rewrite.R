@@ -1,6 +1,6 @@
 # David Shen
-# 27/02/2021
-# bnSDM_rewrite.R v5
+# 26/02/2021
+# bnSDM_rewrite.R v4
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
@@ -31,6 +31,11 @@ bnSDM <- function(in_dir,
                   method = "or", 
                   ncores = "auto")
 {
+  # Export variables to global env
+  direction <<- direction
+  method <<- method
+  
+  
   if(!dir.exists(out_dir)){
     dir.create(out_dir, recursive = T)
   }
