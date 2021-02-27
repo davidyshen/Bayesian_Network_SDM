@@ -1,6 +1,6 @@
 # David Shen
-# 26/02/2021
-# bnSDM_rewrite.R v4
+# 27/02/2021
+# bnSDM_rewrite.R v5
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
@@ -34,7 +34,6 @@ bnSDM <- function(in_dir,
   if(!dir.exists(out_dir)){
     dir.create(out_dir, recursive = T)
   }
-  levels = c("pres", "abs")
   files <- list.files(in_dir)
   interactors <- files[-which(files == focal)]
   
@@ -47,21 +46,13 @@ bnSDM <- function(in_dir,
   }
   
   
-  # A stack of rasters of the non-focal species
-  stack <- raster::stack(paste0(in_dir, interactors))
-  cat("Extracting values from interacting species... \n")
-  stackValues <- raster::values(stack)
+  # A stack of rasters of species with focal species last
+  stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
+  cat("Extracting values... \n")
+  values <- raster::values(stack)
   cat("Done \n")
   
-  # Raster of focal species
-  focalSp <- raster::raster(paste(in_dir, focal, sep = "/"))
-  cat("Extracting values from focal species... \n")
-  focalValues <- raster::values(focalSp)
-  cat("Done \n")
-  
-  values <- cbind(stackValues, focalValues)
-  
-  out <- focalSp
+  out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
