@@ -1,6 +1,6 @@
 # David Shen
 # 26/02/2021
-# bnSDM_rewrite.R v4
+# bnSDM_rewrite.R
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
@@ -31,15 +31,16 @@ bnSDM <- function(in_dir,
                   method = "or", 
                   ncores = "auto")
 {
-  # Export variables to global env
+  # Export variables to global env because the cluster doesn't like it normally???
   direction <<- direction
   method <<- method
   
-  
+  # If output directory doesn't exist, make it
   if(!dir.exists(out_dir)){
     dir.create(out_dir, recursive = T)
   }
   files <- list.files(in_dir)
+  # interactors are the files exclusing the focal species
   interactors <- files[-which(files == focal)]
   
   # Multicore processing
@@ -54,16 +55,18 @@ bnSDM <- function(in_dir,
   # A stack of rasters of species with focal species last
   stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
   cat("Extracting values... \n")
-  values <<- raster::values(stack)
+  # Extract the values of the stack, focal species last column
+  value <<- raster::values(stack)
   cat("Done \n")
   
+  # Make empty raster for posterior occurrence of focal species
   out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
   cl <- parallel::makeCluster(cores)
-  parallel::clusterExport(cl, c("values", "direction", "method", "stateTable", "focalP", "orFunc", "andFunc"))
-  outvals <- parallel::parRapply(cl, values, interP, direction, method)
+  parallel::clusterExport(cl, c("value", "direction", "method", "stateTable", "focalP", "orFunc", "andFunc"))
+  outvals <- parallel::parRapply(cl, value, interP, direction, method)
   parallel::stopCluster(cl)
   
   cat("\n Done \n")
@@ -75,31 +78,43 @@ bnSDM <- function(in_dir,
 
 # Dependent Functions ----
 ## Function that fills state table for interacting species ----
-interP <- function(inter, direction, method) {
-  t0 <- stateTable(direction)
+# inter = vector of occurrence probabilities at a single point
+.interP <- function(inter, direction, method) {
+  # Generate a state table for the number of interacting species; rows = 2^n_species, cols = n_species
+  t0 <- .stateTable(direction)
+  # Multiply the each column of state table by the occurrence probability of each species
   t0 <- t(t(t0)*inter[-length(inter)])
-  t1 <- stateTable(direction)
+  t1 <- .stateTable(direction)
+  # Make state table where if species is absent, value = 1-(probability of occurrence)
   t1 <- abs(t(t(1-t1) * inter[-length(inter)])-1)
-  t2 <- abs(stateTable(direction)-1)
+  t2 <- abs(.stateTable(direction)-1)
+  # Combine state tables: 1|>probability of occurence, 0|>1-probability of occurrence
   t <- t0+t1*t2
-  t <- cbind(t, focalP(fp = inter[length(inter)], direction, method))
+  # Bind final column with conditional probability of occurrence of focal species
+  t <- cbind(t, .focalP(fp = inter[length(inter)], direction, method))
+  # Return the product of each row all summed as the posterior occurrence of the focal species
   return(sum(apply(t, 1, prod)))
 }
 
 ## Function that solves state table for focal species ----
-focalP <- function(fp, direction, method) {
-  m <- stateTable(direction)
+.focalP <- function(fp, direction, method) {
+  # Make a state table
+  m <- .stateTable(direction)
+  # Multiply each column by the direction of interaction of each interacting species
   m <- t(t(m)*direction)
+  # Calculate the cumulative impact
   d <- apply(m, 1, sum)
   if(method == "or") {
+    # If using OR, calculate probability of occurrence of focal species based on OR method
     return(sapply(d, orFunc, fp))
   } else if(method == "and") {
+    # If using AND, calculate probability of occurrence of focal species based on AND method
     return(sapply(d, andFunc, fp, direction))
   }
 }
 
 ## Function that makes state tables from direction vector ----
-stateTable <- function(direction) {
+.stateTable <- function(direction) {
   m1 <- matrix(nrow = 2^length(direction), ncol = length(direction))
   for (k in 1:nrow(m1)) {m1[k,] <- as.numeric(intToBits(k-1))[1:length(direction)]}
   m1 <- m1[nrow(m1):1,]
@@ -107,22 +122,28 @@ stateTable <- function(direction) {
 }
 
 ## Function that evaluates state using OR ----
-orFunc <- function(x, fp) {
+.orFunc <- function(x, fp) {
   if(x == 0) {
+    # If cumulative direction of interaction is 0, no change
     return(fp)
   } else if(x > 0) {
+    # If cumulative direction of interaction > 0, raise occurrence prob (P) by P+min(P, 1-P)
     return(fp + min(fp, 1-fp))
   } else if(x < 0) {
+    # If cumulative direction of interaction < 0, lower occurrence prob by P-min(P, 1-P)
     return(fp - min(fp, 1-fp))
   }
 }
 
 ## Function that evaluates state using AND ----
-andFunc <- function(x, fp, direction) {
+.andFunc <- function(x, fp, direction) {
   dt <- table(direction)
   if (x == dt[2]) {
+    # If only positive interactors are present, increase prob by P+min(P, 1-P)
     return(fp + min(fp, 1-fp))
   } else if (x == dt[1]*-1) {
+    # If only negative interactors are present, decrease prob by P-min(P,1-P)
     return(fp - min(fp, 1-fp))
+    # Otherwise, no change
   } else {return(fp)}
 }
