@@ -4,6 +4,9 @@
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
 # Based on Staniczenko et al. 2017    doi:10.111/ele.12770
+# ******************************************
+# **** DEPRECATED (Use bnSDM_rewrite.R) ****
+# ******************************************
 # ----------------------------------------------------------------------------------- #
 # Help ----
 # Function inputs:
