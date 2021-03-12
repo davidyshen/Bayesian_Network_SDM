@@ -126,10 +126,10 @@ bnSDM <- function(in_dir,
   d <- apply(m, 1, sum)
   if(method == "or") {
     # If using OR, calculate probability of occurrence of focal species based on OR method
-    return(sapply(d, orFunc, fp))
+    return(sapply(d, .orFunc, fp))
   } else if(method == "and") {
     # If using AND, calculate probability of occurrence of focal species based on AND method
-    return(sapply(d, andFunc, fp, direction))
+    return(sapply(d, .andFunc, fp, direction))
   }
 }
 
