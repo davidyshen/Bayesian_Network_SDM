@@ -1,5 +1,4 @@
 # David Shen
-# 26/02/2021
 # bnSDM_rewrite.R
 # A function that applies post-hoc bayesian networks to a species distribution
 # model
@@ -40,7 +39,7 @@ bnSDM <- function(in_dir,
     dir.create(out_dir, recursive = T)
   }
   files <- list.files(in_dir)
-  # interactors are the files exclusing the focal species
+  # interactors are the files excluding the focal species
   interactors <- files[-which(files == focal)]
   
   # Multicore processing
@@ -57,7 +56,26 @@ bnSDM <- function(in_dir,
   cat("Extracting values... \n")
   # Extract the values of the stack, focal species last column
   value <<- raster::values(stack)
+  
+  # ## New stuff ##
+  # # Set values below threshold to NA 
+  # value <- matrix(nrow = nrow(tempvalue), ncol = ncol(tempvalue))
+  # for (c in 1:length(threshold)){
+  #   value[,c] <- unlist(sapply(tempvalue[,c], function(q, thr){
+  #     if(is.na(q) == T){
+  #       NA
+  #     } else if(q < thr){
+  #       q <- NA
+  #     } else {q}}, 
+  #     thr = threshold[c]))
+  # }
+  # 
+  # sp_pres <- apply(value, 1, function(x) {length(na.omit(x))})
+  # hist(sp_pres)
+  
   cat("Done \n")
+  
+  st <- .stateTable(direction)
   
   # Make empty raster for posterior occurrence of focal species
   out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
@@ -146,4 +164,26 @@ bnSDM <- function(in_dir,
     return(fp - min(fp, 1-fp))
     # Otherwise, no change
   } else {return(fp)}
+}
+
+# Other functions ----
+## Function to combine multiple rasters into a single raster ----
+smush <- function(in_dir, out_dir, out_name) {
+  files <- list.files(in_dir)
+  
+  if(!dir.exists(out_dir)){
+    dir.create(out_dir, recursive = T)
+  }
+  
+  stack <- raster::stack(as.list(paste0(in_dir, files)))
+  outRas <- raster::raster(nrows = nrow(stack), 
+                           ncols = ncol(stack), 
+                           ext = raster::extent(stack), 
+                           crs = raster::crs(stack))
+  
+  values <- raster::values(stack)
+  maxVal <- apply(values, 1, max)
+  raster::values(outRas) <- maxVal
+  
+  raster::writeRaster(outRas, paste0(out_dir, out_name, ".tif"), format = "GTiff")
 }
