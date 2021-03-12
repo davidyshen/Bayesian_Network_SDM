@@ -52,7 +52,7 @@ bnSDM <- function(in_dir,
   
   
   # A stack of rasters of species with focal species last
-  stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
+  stack <<- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
   cat("Extracting values... \n")
   # Extract the values of the stack, focal species last column
   value <<- raster::values(stack)
@@ -79,7 +79,7 @@ bnSDM <- function(in_dir,
   st <<- .stateTable(direction)
   
   # Make empty raster for posterior occurrence of focal species
-  out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
+  out <<- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
@@ -99,7 +99,7 @@ bnSDM <- function(in_dir,
 ## Function that fills state table for interacting species ----
 # inter = vector of occurrence probabilities at a single point
 # st = blank state table with nrow = number of species
-.interP <- function(inter, direction, method, st) {
+.interP <<- function(inter, direction, method, st) {
   # Generate a state table for the number of interacting species; rows = 2^n_species, cols = n_species
   t0 <- st
   # Multiply the each column of state table by the occurrence probability of each species
@@ -117,7 +117,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that solves state table for focal species ----
-.focalP <- function(fp, direction, method) {
+.focalP <<- function(fp, direction, method) {
   # Make a state table
   m <- .stateTable(direction)
   # Multiply each column by the direction of interaction of each interacting species
@@ -134,7 +134,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that makes state tables from direction vector ----
-.stateTable <- function(direction) {
+.stateTable <<- function(direction) {
   m1 <- matrix(nrow = 2^length(direction), ncol = length(direction))
   for (k in 1:nrow(m1)) {m1[k,] <- as.numeric(intToBits(k-1))[1:length(direction)]}
   m1 <- m1[nrow(m1):1,]
@@ -142,7 +142,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that evaluates state using OR ----
-.orFunc <- function(x, fp) {
+.orFunc <<- function(x, fp) {
   if(x == 0) {
     # If cumulative direction of interaction is 0, no change
     return(fp)
@@ -156,7 +156,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that evaluates state using AND ----
-.andFunc <- function(x, fp, direction) {
+.andFunc <<- function(x, fp, direction) {
   dt <- table(direction)
   if (x == dt[2]) {
     # If only positive interactors are present, increase prob by P+min(P, 1-P)
@@ -170,7 +170,7 @@ bnSDM <- function(in_dir,
 
 # Other functions ----
 ## Function to combine multiple rasters into a single raster ----
-smush <- function(in_dir, out_dir, out_name) {
+smush <<- function(in_dir, out_dir, out_name) {
   files <- list.files(in_dir)
   
   if(!dir.exists(out_dir)){
