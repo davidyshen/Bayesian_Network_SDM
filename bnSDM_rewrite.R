@@ -85,7 +85,7 @@ bnSDM <- function(in_dir,
   # Working cell by cell of raster
   cl <- parallel::makeCluster(cores)
   parallel::clusterExport(cl, c("value", "direction", "method", "st", ".interP", ".focalP", ".orFunc", ".andFunc"))
-  outvals <- parallel::parRapply(cl, value, interP, direction, method, st)
+  outvals <- parallel::parRapply(cl, value, .interP, direction, method, st)
   parallel::stopCluster(cl)
   
   cat("\n Done \n")
