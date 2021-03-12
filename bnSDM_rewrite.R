@@ -75,6 +75,7 @@ bnSDM <- function(in_dir,
   
   cat("Done \n")
   
+  # Make state table once and reuse for each cell rather than making a new table every cell
   st <- .stateTable(direction)
   
   # Make empty raster for posterior occurrence of focal species
@@ -83,8 +84,8 @@ bnSDM <- function(in_dir,
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
   cl <- parallel::makeCluster(cores)
-  parallel::clusterExport(cl, c("value", "direction", "method", "stateTable", "focalP", "orFunc", "andFunc"))
-  outvals <- parallel::parRapply(cl, value, interP, direction, method)
+  parallel::clusterExport(cl, c("value", "direction", "method", "st", ".interP", ".focalP", ".orFunc", ".andFunc"))
+  outvals <- parallel::parRapply(cl, value, interP, direction, method, st)
   parallel::stopCluster(cl)
   
   cat("\n Done \n")
@@ -97,15 +98,16 @@ bnSDM <- function(in_dir,
 # Dependent Functions ----
 ## Function that fills state table for interacting species ----
 # inter = vector of occurrence probabilities at a single point
-.interP <- function(inter, direction, method) {
+# st = blank state table with nrow = number of species
+.interP <- function(inter, direction, method, st) {
   # Generate a state table for the number of interacting species; rows = 2^n_species, cols = n_species
-  t0 <- .stateTable(direction)
+  t0 <- st
   # Multiply the each column of state table by the occurrence probability of each species
   t0 <- t(t(t0)*inter[-length(inter)])
-  t1 <- .stateTable(direction)
+  t1 <- st
   # Make state table where if species is absent, value = 1-(probability of occurrence)
   t1 <- abs(t(t(1-t1) * inter[-length(inter)])-1)
-  t2 <- abs(.stateTable(direction)-1)
+  t2 <- abs(st-1)
   # Combine state tables: 1|>probability of occurence, 0|>1-probability of occurrence
   t <- t0+t1*t2
   # Bind final column with conditional probability of occurrence of focal species
