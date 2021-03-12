@@ -111,15 +111,15 @@ bnSDM <- function(in_dir,
   # Combine state tables: 1|>probability of occurence, 0|>1-probability of occurrence
   t <- t0+t1*t2
   # Bind final column with conditional probability of occurrence of focal species
-  t <- cbind(t, .focalP(fp = inter[length(inter)], direction, method))
+  t <- cbind(t, .focalP(fp = inter[length(inter)], direction, method, st))
   # Return the product of each row all summed as the posterior occurrence of the focal species
   return(sum(apply(t, 1, prod)))
 }
 
 ## Function that solves state table for focal species ----
-.focalP <<- function(fp, direction, method) {
+.focalP <<- function(fp, direction, method, st) {
   # Make a state table
-  m <- .stateTable(direction)
+  m <- st
   # Multiply each column by the direction of interaction of each interacting species
   m <- t(t(m)*direction)
   # Calculate the cumulative impact
