@@ -52,7 +52,7 @@ bnSDM <- function(in_dir,
   
   
   # A stack of rasters of species with focal species last
-  stack <<- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
+  stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
   cat("Extracting values... \n")
   # Extract the values of the stack, focal species last column
   value <<- raster::values(stack)
@@ -79,7 +79,7 @@ bnSDM <- function(in_dir,
   st <<- .stateTable(direction)
   
   # Make empty raster for posterior occurrence of focal species
-  out <<- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
+  out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
   
   cat("Calculating posterior values for each cell... \n")
   # Working cell by cell of raster
