@@ -76,7 +76,7 @@ bnSDM <- function(in_dir,
   cat("Done \n")
   
   # Make state table once and reuse for each cell rather than making a new table every cell
-  st <- .stateTable(direction)
+  st <<- .stateTable(direction)
   
   # Make empty raster for posterior occurrence of focal species
   out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
