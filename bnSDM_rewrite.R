@@ -170,7 +170,11 @@ bnSDM <- function(in_dir,
 
 # Other functions ----
 ## Function to combine multiple rasters into a single raster ----
-smush <<- function(in_dir, out_dir, out_name) {
+# in_dir    = directory containing rasters to be smushed into a single/reduced number of rasters, must end in /
+# out_dir   = directory to output in, must end in /
+# out_name  = name of output file(s)
+# n         = number of be reduced to, defaults to 1
+smush <- function(in_dir, out_dir, out_name, n = 1, ncores = "auto") {
   files <- list.files(in_dir)
   
   if(!dir.exists(out_dir)){
@@ -183,9 +187,23 @@ smush <<- function(in_dir, out_dir, out_name) {
                            ext = raster::extent(stack), 
                            crs = raster::crs(stack))
   
-  values <- raster::values(stack)
-  maxVal <- apply(values, 1, max)
-  raster::values(outRas) <- maxVal
+  # Multicore processing
+  if(ncores == "auto"){
+    cores <- parallel::detectCores()
+  } else if(is.numeric(ncores)) {
+    if(ncores > parallel::detectCores()){stop("More cores specified than available: ", parallel::detectCores(), " usable")}
+    cores <- ncores
+  }
   
-  raster::writeRaster(outRas, paste0(out_dir, out_name, ".tif"), format = "GTiff")
+  values <- raster::values(stack)
+  cl <- parallel::makeCluster(cores)
+  maxVals <- parallel::parApply(cl, values, 1, function(x, n){
+    sort(x, decreasing = T)[1:n]
+  }, n)
+  parallel::stopCluster(cl)
+  
+  for(i in 1:n){
+    raster::values(outRas) <- maxVals[i,]
+    raster::writeRaster(outRas, paste0(out_dir, out_name, "_", i, ".tif"), format = "GTiff", overwrite = T)
+  }
 }
