@@ -202,8 +202,13 @@ smush <- function(in_dir, out_dir, out_name, n = 1, ncores = "auto") {
   }, n)
   parallel::stopCluster(cl)
   
-  for(i in 1:n){
-    raster::values(outRas) <- maxVals[i,]
-    raster::writeRaster(outRas, paste0(out_dir, out_name, "_", i, ".tif"), format = "GTiff", overwrite = T)
+  if(n > 1) {
+    for(i in 1:n){
+      raster::values(outRas) <- maxVals[i,]
+      raster::writeRaster(outRas, paste0(out_dir, out_name, "_", i, ".tif"), format = "GTiff", overwrite = T)
+    }
+  } else {
+    raster::values(outRas) <- maxVals
+    raster::writeRaster(outRas, paste0(out_dir, out_name,".tif"), format = "GTiff", overwrite = T)
   }
 }
