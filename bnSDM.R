@@ -30,9 +30,9 @@ bnSDM <- function(in_dir,
                   method = "or", 
                   ncores = "auto")
 {
-  # Export variables to global env because the cluster doesn't like it normally???
-  direction <<- direction
-  method <<- method
+  # # Export variables to global env because the cluster doesn't like it normally???
+  # direction <- direction
+  # method <- method
   
   # If output directory doesn't exist, make it
   if(!dir.exists(out_dir)){
@@ -40,7 +40,8 @@ bnSDM <- function(in_dir,
   }
   files <- list.files(in_dir)
   # interactors are the files excluding the focal species
-  interactors <- files[-which(files == focal)]
+  # Updated to allow partial string matching instead of verbatim filenames
+  interactors <- files[!str_detect(files,focal)]
   
   # Multicore processing
   if(ncores == "auto"){
@@ -52,10 +53,10 @@ bnSDM <- function(in_dir,
   
   
   # A stack of rasters of species with focal species last
-  stack <- raster::stack(paste0(in_dir, interactors), paste(in_dir, focal, sep = "/"))
+  stack <- raster::stack(file.path(in_dir, interactors), file.path(in_dir, focal))
   cat("Extracting values... \n")
   # Extract the values of the stack, focal species last column
-  value <<- raster::values(stack)
+  value <- raster::values(stack)
   
   # ## New stuff ##
   # # Set values below threshold to NA 
@@ -76,7 +77,7 @@ bnSDM <- function(in_dir,
   cat("Done \n")
   
   # Make state table once and reuse for each cell rather than making a new table every cell
-  st <<- .stateTable(direction)
+  st <- .stateTable(direction)
   
   # Make empty raster for posterior occurrence of focal species
   out <- raster::raster(nrows = nrow(stack), ncols = ncol(stack), ext = raster::extent(stack), crs = raster::crs(stack))
@@ -92,14 +93,14 @@ bnSDM <- function(in_dir,
   # Write posterior values to output raster
   raster::values(out) <- outvals
   cat("Writing output to: ", paste0("~", out_dir, names(out), "_bnSDM.tif"), "... \n")
-  suppressWarnings(raster::writeRaster(out, paste0(out_dir, names(out), "_bnSDM.tif"), format = "GTiff", overwrite = T))
+  suppressWarnings(raster::writeRaster(out, file.path(out_dir, paste0(names(out), "_bnSDM.tif")), format = "GTiff", overwrite = T))
 }
 
 # Dependent Functions ----
 ## Function that fills state table for interacting species ----
 # inter = vector of occurrence probabilities at a single point
 # st = blank state table with nrow = number of species
-.interP <<- function(inter, direction, method, st) {
+.interP <- function(inter, direction, method, st) {
   # Generate a state table for the number of interacting species; rows = 2^n_species, cols = n_species
   t0 <- st
   # Multiply the each column of state table by the occurrence probability of each species
@@ -117,7 +118,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that solves state table for focal species ----
-.focalP <<- function(fp, direction, method, st) {
+.focalP <- function(fp, direction, method, st) {
   # Make a state table
   m <- st
   # Multiply each column by the direction of interaction of each interacting species
@@ -134,7 +135,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that makes state tables from direction vector ----
-.stateTable <<- function(direction) {
+.stateTable <- function(direction) {
   m1 <- matrix(nrow = 2^length(direction), ncol = length(direction))
   for (k in 1:nrow(m1)) {m1[k,] <- as.numeric(intToBits(k-1))[1:length(direction)]}
   m1 <- m1[nrow(m1):1,]
@@ -142,7 +143,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that evaluates state using OR ----
-.orFunc <<- function(x, fp) {
+.orFunc <- function(x, fp) {
   if(x == 0) {
     # If cumulative direction of interaction is 0, no change
     return(fp)
@@ -156,7 +157,7 @@ bnSDM <- function(in_dir,
 }
 
 ## Function that evaluates state using AND ----
-.andFunc <<- function(x, fp, direction) {
+.andFunc <- function(x, fp, direction) {
   dt <- table(direction)
   if (x == dt[2]) {
     # If only positive interactors are present, increase prob by P+min(P, 1-P)
@@ -181,7 +182,7 @@ smush <- function(in_dir, out_dir, out_name, n = 1, ncores = "auto") {
     dir.create(out_dir, recursive = T)
   }
   
-  stack <- raster::stack(as.list(paste0(in_dir, files)))
+  stack <- raster::stack(as.list(file.path(in_dir, files)))
   outRas <- raster::raster(nrows = nrow(stack), 
                            ncols = ncol(stack), 
                            ext = raster::extent(stack), 
@@ -205,10 +206,10 @@ smush <- function(in_dir, out_dir, out_name, n = 1, ncores = "auto") {
   if(n > 1) {
     for(i in 1:n){
       raster::values(outRas) <- maxVals[i,]
-      raster::writeRaster(outRas, paste0(out_dir, out_name, "_", i, ".tif"), format = "GTiff", overwrite = T)
+      raster::writeRaster(outRas, paste0(file.path(out_dir,out_name), "_", i, ".tif"), format = "GTiff", overwrite = T)
     }
   } else {
     raster::values(outRas) <- maxVals
-    raster::writeRaster(outRas, paste0(out_dir, out_name,".tif"), format = "GTiff", overwrite = T)
+    raster::writeRaster(outRas, paste0(file.path(out_dir,out_name),".tif"), format = "GTiff", overwrite = T)
   }
 }
