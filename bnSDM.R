@@ -41,7 +41,7 @@ bnSDM <- function(in_dir,
   files <- list.files(in_dir)
   # interactors are the files excluding the focal species
   # Updated to allow partial string matching instead of verbatim filenames
-  interactors <- files[!str_detect(files,focal)]
+  interactors <- files[!stringr::str_detect(files,focal)]
   
   # Multicore processing
   if(ncores == "auto"){
