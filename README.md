@@ -6,6 +6,11 @@ For optimal performance this should be run in parallel
 More Cores = More Better  
 Currently uses multisession because I'm writing this on Windows but will change to forking later
 
+### Sourcing
+`devtools::source_url("https://github.com/davidyshen/bayesian_network_sdm/blob/main/bnSDM.R?raw=TRUE")`
+or `git clone` the repository
+or download just `bnSDM.R`
+
 ----
 
 ### Calling function
@@ -21,11 +26,6 @@ Outputs a tif in the output directory named *focal.species*_bnSDM.tif
 * `ncores`    = integer value or character string `auto`, specifies number of cores/threads to run in multithreaded mode, defaults to `auto` using all threads on all cores
 
 SDM rasters are loaded and used alphabetically, so the `direction` vector must be in the same order
-
-### Calling
-`devtools::source_url("https://github.com/davidyshen/bayesian_network_sdm/blob/main/bnSDM.R?raw=TRUE")`  
-or download `bnSDM.R`
-
 ### Known issues
 Networks with more than ~12 dependencies are not computationally possible (I tried running it over 30 cores and its still not possible 😢 - size of matrix increases by 2^n)
 
