@@ -24,7 +24,7 @@ SDM rasters are loaded and used alphabetically, so the `direction` vector must b
 
 ### Calling
 `devtools::source_url("https://github.com/davidyshen/bayesian_network_sdm/blob/main/bnSDM.R?raw=TRUE")`  
-or download `bnSDM_rewrite.R`
+or download `bnSDM.R`
 
 ### Known issues
 Networks with more than ~12 dependencies are not computationally possible (I tried running it over 30 cores and its still not possible 😢 - size of matrix increases by 2^n)
@@ -32,9 +32,19 @@ Networks with more than ~12 dependencies are not computationally possible (I tri
 ### Function dependencies
 * parallel
 * raster
-* ~~gRain~~
-* ~~dplyr~~
+* stringr
 
-~~Some dependencies of gRain (RBGL) are no-longer hosted in CRAN, however can be obtained through Bioconductor~~ No longer requires gRain package
+----
+## Other functions
+`smush` function compresses many species into a single raster (or more depending on how many you want). Takes the highest probability value in each cell over all input rasters, and selects `n` of them. Used to reduce many species down into a functional group and reduce to a single or few interactors.
 
-Future steps: Reinclude gRain package to draw interaction network plot
+### Calling function:
+`smush(in_dir, out_dir, out_name, n, ncores = "auto")`
+Outputs `n` tifs in the output directory with name *out_name*.tif
+
+### Function inputs:
+* `in_dir`    = (required) character string of path to folder containing the input data
+* `out_dir`   = (required) character string of output directory
+* `out_name`  = (required) character string of output tif filename
+* `n`         = integer of how many files to output. If more than 1, takes `n` of the highest probabilities in each cell over all the input rasters. Defaults to `1`
+* `ncores`    = number of cores to use. Defaults to `auto` and uses all cores available
